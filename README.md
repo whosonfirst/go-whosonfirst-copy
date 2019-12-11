@@ -34,7 +34,7 @@ Notes:
 
 ```
 [
-"hash,sfomuseum-data-media,151/159/924/5/1511599245.geojson"
+"a66e0a6b934eb2cef1d92effb2aee1875534d454,sfomuseum-data-media,151/159/924/5/1511599245.geojson"
 ]
 ```
 
