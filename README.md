@@ -19,13 +19,16 @@ go run -mod vendor cmd/wof-copy/main.go \
 
 If run in "lambda" mode the code will assume it's being sent messages that have been produced by the [go-webhookd GitHubCommits transformation](https://github.com/whosonfirst/go-webhookd/#githubcommits). 
 
-| Key | Value | Notes |
+| Key | Value |
 | --- | --- | --- |
-| WOF_COPY_MODE | lambda | |
-| WOF_COPY_READER_URI | github://sfomuseum-data/%s?prefix=data | |
-| WOF_COPY_WRITER_URI | null:// ||
+| WOF_COPY_MODE | lambda |
+| WOF_COPY_READER_URI | github://sfomuseum-data/%s?prefix=data |
+| WOF_COPY_WRITER_URI | null:// |
 
-See the way the (`go-reader`) reader URI contains a `%s` placeholder? When the Lambda handler is invoked it will parse the message looking for a GitHub repository to replace the placeholder with and create a `Reader` instance with.
+Notes:
+
+* See the way the (`go-reader`) reader URI contains a `%s` placeholder? When the Lambda handler is invoked it will parse the message looking for a GitHub repository to replace the placeholder with and create a `Reader` instance with.
+* You can define multiple (`go-writer`) writer URIs in the `WOF_COPY_WRITER_URI` environment variable by passing them in as a comma-separated list.
 
 `GitHubCommits` messages look like this:
 
