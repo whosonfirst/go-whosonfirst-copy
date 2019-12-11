@@ -10,3 +10,4 @@ bin
 *.db
 testdata/*.txt
 *.zip
+wof-copy

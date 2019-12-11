@@ -2,7 +2,6 @@ package elasticsearch
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	es "github.com/elastic/go-elasticsearch"
 	esapi "github.com/elastic/go-elasticsearch/esapi"
@@ -37,33 +36,33 @@ func (wr *ElasticsearchWriter) Open(ctx context.Context, uri string) error {
 		return err
 	}
 
+	host := u.Host
+	index := u.Path
+
+	port := 9200
+
 	q := u.Query()
-
-	index := q.Get("index")
-
-	if index == "" {
-		return errors.New("Missing index parameter")
-	}
 
 	str_port := q.Get("port")
 
-	if str_port == "" {
-		return errors.New("Missing port parameter")
-	}
+	if str_port != "" {
 
-	port, err := strconv.Atoi(str_port)
+		p, err := strconv.Atoi(str_port)
 
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
+
+		port = p
 	}
 
 	var es_endpoint string
 
 	switch port {
 	case 443:
-		es_endpoint = fmt.Sprintf("https://%s", u.Host)
+		es_endpoint = fmt.Sprintf("https://%s", host)
 	default:
-		es_endpoint = fmt.Sprintf("http://%s:%d", u.Host, port)
+		es_endpoint = fmt.Sprintf("http://%s:%d", host, port)
 	}
 
 	es_cfg := es.Config{
@@ -77,6 +76,8 @@ func (wr *ElasticsearchWriter) Open(ctx context.Context, uri string) error {
 	}
 
 	wr.client = client
+	wr.index = index
+
 	return nil
 }
 

@@ -11,6 +11,6 @@ require (
 	github.com/whosonfirst/go-whosonfirst-geojson-v2 v0.12.0
 	github.com/whosonfirst/go-writer v0.0.2
 	github.com/whosonfirst/go-writer-blob v0.0.3
-	github.com/whosonfirst/go-writer-elasticsearch v0.0.0-20191211211055-6fa54643c869
+	github.com/whosonfirst/go-writer-elasticsearch v0.0.0-20191211233345-6ccb21f21cae
 	gocloud.dev v0.18.0
 )
