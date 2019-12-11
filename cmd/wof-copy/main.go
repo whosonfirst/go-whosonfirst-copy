@@ -15,6 +15,7 @@ import (
 	"bytes"
 	"context"
 	"flag"
+	"fmt"
 	aws_lambda "github.com/aws/aws-lambda-go/lambda"
 	"github.com/whosonfirst/go-reader"
 	_ "github.com/whosonfirst/go-reader-github"
@@ -39,7 +40,7 @@ type Copier struct {
 
 func CopyMany(ctx context.Context, cp *Copier, uris ...string) error {
 
-	// do these in parallel (see notes above wrt/ go-copy)	
+	// do these in parallel (see notes above wrt/ go-copy)
 
 	for _, uri := range uris {
 
@@ -109,14 +110,12 @@ func main() {
 
 	err := flags.SetFlagsFromEnvVars("WOF_COPY")
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	reader, err := reader.NewReader(ctx, *reader_uri)
-
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	var writers []writer.Writer
 
@@ -145,16 +144,22 @@ func main() {
 		writers = append(writers, wr)
 	}
 
-	cp := &Copier{
-		Reader:  reader,
-		Writers: writers,
-	}
-
 	switch *mode {
 	case "cli":
 
+		reader, err := reader.NewReader(ctx, *reader_uri)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		cp := &Copier{
+			Reader:  reader,
+			Writers: writers,
+		}
+
 		uris := flag.Args()
-		err := CopyMany(ctx, cp, uris...)
+		err = CopyMany(ctx, cp, uris...)
 
 		if err != nil {
 			log.Fatal(err)
@@ -168,23 +173,58 @@ func main() {
 
 	case "lambda":
 
-		// specifically, this assumes: https://github.com/whosonfirst/go-webhookd/#githubcommits
-		
+		// specifically, this assumes:
+		// https://github.com/whosonfirst/go-webhookd/#githubcommits
+		// https://github.com/whosonfirst/go-webhookd/blob/master/transformations/github.commits.go
+
 		handler := func(ctx context.Context, args []interface{}) error {
 
-			uris := make([]string, len(args))
+			to_process := make(map[string][]string)
 
-			for i, uri := range args {
-				uris[i] = uri.(string)
+			for _, arg := range args {
+
+				commit_str := arg.(string)
+				commit := strings.Split(commit_str, ",")
+
+				if len(commit) != 3 {
+					continue
+				}
+
+				repo := commit[1]
+				path := commit[2]
+
+				uris, ok := to_process[repo]
+
+				if !ok {
+					uris = make([]string, 0)
+				}
+
+				uris = append(uris, path)
+				to_process[repo] = uris
 			}
-			
+
 			ctx, cancel := context.WithCancel(ctx)
 			defer cancel()
 
-			err = CopyMany(ctx, cp, uris...)
+			for repo, uris := range to_process {
 
-			if err != nil {
-				return err
+				reader_source := fmt.Sprintf(*reader_uri, repo)
+				r, err := reader.NewReader(ctx, reader_source)
+
+				if err != nil {
+					return err
+				}
+
+				cp := &Copier{
+					Reader:  r,
+					Writers: writers,
+				}
+
+				err = CopyMany(ctx, cp, uris...)
+
+				if err != nil {
+					return err
+				}
 			}
 
 			return nil
