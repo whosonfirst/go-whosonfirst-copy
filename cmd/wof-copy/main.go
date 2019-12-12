@@ -1,10 +1,6 @@
 package main
 
-/*
-
-go run -mod vendor cmd/wof-copy/main.go -reader-uri 'github://sfomuseum-data/sfomuseum-data-media?prefix=data' -writer-uri 'elasticsearch://localhost?port=9200&index=wof' -writer-uri 'null://' 151/159/924/5/1511599245.geojson
-
-*/
+// ugh...
 
 import (
 	_ "github.com/aaronland/go-cloud-s3blob"
@@ -35,7 +31,8 @@ import (
 
 // basically all of the Copier / Copy stuff is already in whosonfirst/go-copy
 // but I haven't figured out how to define a custom URI function for wrangling
-// a fully-qualified URI in to an ID for the ES writer (20191211/thisisaaronland)
+// a fully-qualified URI in to an ID for the ES writer or setting ACLs in the
+// S3/Blob writer and so on... (20191211/thisisaaronland)
 
 type Copier struct {
 	Reader  reader.Reader
