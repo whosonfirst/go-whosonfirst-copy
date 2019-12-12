@@ -19,11 +19,11 @@ go run -mod vendor cmd/wof-copy/main.go \
 
 If run in "lambda" mode the code will assume it's being sent messages that have been produced by the [go-webhookd GitHubCommits transformation](https://github.com/whosonfirst/go-webhookd/#githubcommits). 
 
-| Key | Value |
-| --- | --- |
-| WOF_COPY_MODE | lambda |
-| WOF_COPY_READER_URI | github://sfomuseum-data/%s?prefix=data |
-| WOF_COPY_WRITER_URI | null:// |
+| Key | Value | Notes |
+| --- | --- | --- |
+| WOF_COPY_MODE | lambda | | 
+| WOF_COPY_READER_URI | github://sfomuseum-data/%s?prefix=data | Any valid `go-reader` URI. |
+| WOF_COPY_WRITER_URI | null:// | A comma-separated list of one or more valid `go-writer` URIs. |
 
 Notes:
 
