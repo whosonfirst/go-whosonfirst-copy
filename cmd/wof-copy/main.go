@@ -14,16 +14,20 @@ import (
 import (
 	"bytes"
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	aws_lambda "github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/whosonfirst/go-reader"
 	_ "github.com/whosonfirst/go-reader-github"
 	"github.com/whosonfirst/go-whosonfirst-cli/flags"
 	"github.com/whosonfirst/go-whosonfirst-geojson-v2/feature"
 	"github.com/whosonfirst/go-writer"
-	_ "github.com/whosonfirst/go-writer-blob"
+	blob_writer "github.com/whosonfirst/go-writer-blob"
 	"github.com/whosonfirst/go-writer-elasticsearch"
+	gc_blob "gocloud.dev/blob"
 	"io/ioutil"
 	"log"
 	"strings"
@@ -82,6 +86,28 @@ func Copy(ctx context.Context, cp *Copier, uri string) error {
 		switch wr.(type) {
 		case *elasticsearch.ElasticsearchWriter:
 			wr_uri = f.Id()
+		case *blob_writer.BlobWriter:
+
+			before := func(asFunc func(interface{}) bool) error {
+
+				req := &s3manager.UploadInput{}
+				ok := asFunc(&req)
+
+				if !ok {
+					return errors.New("invalid s3 type")
+				}
+
+				req.ACL = aws.String("public-read")
+				return nil
+			}
+
+			wr_opts := &gc_blob.WriterOptions{
+				BeforeWrite: before,
+			}
+
+			ctx = context.WithValue(ctx, blob_writer.BlobWriterOptionsKey("options"), wr_opts)
+			wr_uri = uri
+
 		default:
 			wr_uri = uri
 		}

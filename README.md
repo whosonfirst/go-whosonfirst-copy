@@ -22,7 +22,7 @@ If run in "lambda" mode the code will assume it's being sent messages that have 
 | Key | Value | Notes |
 | --- | --- | --- |
 | WOF_COPY_MODE | lambda | | 
-| WOF_COPY_READER_URI | github://sfomuseum-data/%s?prefix=data | Any valid `go-reader` URI. |
+| WOF_COPY_READER_URI | github://sfomuseum-data/%s?prefix=data/ | Any valid `go-reader` URI. |
 | WOF_COPY_WRITER_URI | null:// | A comma-separated list of one or more valid `go-writer` URIs. |
 
 Notes:

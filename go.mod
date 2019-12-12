@@ -5,6 +5,7 @@ go 1.12
 require (
 	github.com/aaronland/go-cloud-s3blob v0.0.0-20191122231736-37020545e7bd
 	github.com/aws/aws-lambda-go v1.13.3
+	github.com/aws/aws-sdk-go v1.25.34
 	github.com/whosonfirst/go-reader v0.0.2
 	github.com/whosonfirst/go-reader-github v0.1.0
 	github.com/whosonfirst/go-whosonfirst-cli v0.1.0
